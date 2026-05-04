@@ -4,14 +4,6 @@ import (
 	"context"
 )
 
-// func (u *RateLimiterUseCase) chooseRepositoryStrategy(strategy string) RateLimiterRepository {
-
-// 	case strategy == "redis":
-// 		return
-
-// 	return u.Repository
-// }
-
 type RateLimiterRepository interface {
 	Increment(ctx context.Context, key string, expiration int) (int, error)
 	IsBlocked(ctx context.Context, key string) (bool, error)

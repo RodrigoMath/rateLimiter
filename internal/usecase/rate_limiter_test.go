@@ -71,3 +71,45 @@ func TestRateLimiterUseCase_shouldFail_Execute(t *testing.T) {
 	assert.False(t, isBlocked, "Expected to be not allowed")
 
 }
+
+func TestRateLimiterUseCase_withKey_shouldNotFail_Execute(t *testing.T) {
+	mockRepo := new(MockRepository)
+	useCase := NewRateLimiterUseCase(mockRepo, 10, 100, 60)
+
+	ctx := context.Background()
+
+	mockRepo.On("IsBlocked", ctx, mock.Anything).Return(false, nil)
+
+	mockRepo.On("Increment", ctx, mock.Anything, mock.Anything).Return(11, nil)
+
+	mockRepo.On("Block", ctx, mock.Anything, mock.Anything).Return(nil)
+
+	isBlocked, err := useCase.Execute(ctx, "TOKEN_123", true)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	assert.True(t, isBlocked, "Expected to be  allowed")
+
+}
+
+func TestRateLimiterUseCase_withKey_shouldFail_Execute(t *testing.T) {
+	mockRepo := new(MockRepository)
+	useCase := NewRateLimiterUseCase(mockRepo, 10, 100, 60)
+
+	ctx := context.Background()
+
+	mockRepo.On("IsBlocked", ctx, mock.Anything).Return(false, nil)
+
+	mockRepo.On("Increment", ctx, mock.Anything, mock.Anything).Return(101, nil)
+
+	mockRepo.On("Block", ctx, mock.Anything, mock.Anything).Return(nil)
+
+	isBlocked, err := useCase.Execute(ctx, "TOKEN_123", true)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	assert.False(t, isBlocked, "Expected to be not allowed")
+
+}
